@@ -3,9 +3,11 @@
 from dvk_archive.main.file.dvk import Dvk
 from dvk_archive.main.web.bs_connect import download
 from dvk_archive.test.temp_dir import get_test_dir
+from moviepy.editor import VideoFileClip
 from top_ten_bot.main.encode_video import create_list_video
 from top_ten_bot.main.encode_video import get_image_clip
 from top_ten_bot.main.encode_video import get_text_clip
+from top_ten_bot.main.encode_video import write_video
 from top_ten_bot.main.image_search import get_images
 from os.path import abspath, exists, join
 
@@ -63,10 +65,33 @@ def test_create_list_video():
     assert create_list_video("title", None) == None
     assert create_list_video("title", [Dvk()]) == None
 
+def test_write_video():
+    """
+    Tests the write_video function.
+    """
+    # Test that video was written to file.
+    test_dir = get_test_dir()
+    video = get_text_clip("test text")
+    file = join(test_dir, "test.webm")
+    write_video(video, file)
+    assert exists(file)
+    clip = VideoFileClip(file)
+    assert clip.duration == 4
+    # Test writing video with invalid parameters
+    file = join(test_dir, "other.webm")
+    assert not exists(file)
+    write_video(None, file)
+    assert not exists(file)
+    file = "/non/existant/directory/file.webm"
+    write_video(video, file)
+    assert not exists(file)
+    write_video(video, None)
+
 def all_tests():
     """
     Runs all tests for the encode_video.py module.
     """
     test_get_text_clip()
     test_get_image_clip()
+    test_write_video()
     test_create_list_video()

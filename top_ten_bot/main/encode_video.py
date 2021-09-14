@@ -5,7 +5,7 @@ from dvk_archive.main.processing.string_processing import get_extension
 from moviepy.editor import concatenate_videoclips
 from moviepy.editor import ColorClip, CompositeVideoClip, ImageClip, TextClip, VideoClip
 from os import pardir
-from os.path import abspath, basename, join
+from os.path import abspath, basename, isdir, join
 from PIL import Image
 from typing import List
 
@@ -145,3 +145,20 @@ def create_list_video(title:str=None, dvks:List[Dvk]=None) -> VideoClip:
         return video
     except:
         return None
+
+def write_video(video:VideoClip=None, file:str=None):
+    """
+    Writes a given VideoClip to a file.
+
+    :param video: VideoClip to save to file, defaults to None
+    :type video: VideoClip, optional
+    :param file: Path of file video will be saved to, defaults to None
+    :type file: str, optional
+    """
+    # Check if parameters are valid
+    if (video is not None
+            and file is not None
+            and isdir(abspath(join(file, pardir)))):
+        # Write video to file
+        video.write_videofile(abspath(file),
+                    fps=12, audio_bitrate="50k")
