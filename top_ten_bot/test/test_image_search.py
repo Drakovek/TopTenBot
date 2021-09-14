@@ -20,9 +20,9 @@ def test_get_images():
     # Test with invalid parameters
     assert get_images(None, test_dir, 10) == []
     assert get_images("dog", None, 5) == []
-
+ 
 def all_tests():
     """
-    Runs all tests for the image_search module.
+    Runs all tests for the image_search.py module.
     """
     test_get_images()

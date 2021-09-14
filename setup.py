@@ -12,7 +12,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="TopTenBot",
-    version="0.0.1",
+    version="0.0.2",
     author="Drakovek",
     author_email="DrakovekMail@gmail.com",
     description=long_description,
@@ -20,7 +20,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/Drakovek/dvk_manga",
     packages=setuptools.find_packages(),
-    install_requires=["dvk-archive"],
+    install_requires=["dvk-archive", "moviepy", "pillow"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from duckduckgo_images_api import search as img_search
 from dvk_archive.main.file.dvk import Dvk
 from dvk_archive.main.processing.list_processing import clean_list
 from dvk_archive.main.processing.string_processing import get_extension
@@ -33,6 +32,7 @@ def get_images(search:str=None,
     if search is None or directory is None:
         return []
     try:
+        print("Searching for images...")
         # Send POST request to DuckDuckGo
         data = {"q":search}
         response = get_direct_response("https://duckduckgo.com/", data=data)
@@ -54,16 +54,19 @@ def get_images(search:str=None,
         images = []
         page_num = 1
         size = num_images*3
-        while page_num < 20 and len(images) < size:
+        while page_num < num_images and len(images) < size:
             sleep(5)
             json = json_connect(url + str(page_num))
             results = json["results"]
             for result in results:
-                if result["width"] < max_size and result["height"] < max_size:
+                if (result["width"] > result["height"]
+                            and result["width"] < max_size
+                            and result["height"] < max_size):
                     images.append(result["image"])
             clean_list(images)
             page_num+=1
         # Download images
+        print("Downloading images...")
         dvks = []
         num_downloaded = 0
         while len(images) > 0 and num_downloaded < num_images:
