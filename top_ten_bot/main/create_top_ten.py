@@ -9,16 +9,24 @@ from top_ten_bot.main.image_search import get_images
 from top_ten_bot.main.encode_video import create_list_video, write_video
 from shutil import move, rmtree
 
-def get_temp_directory() -> str:
+def get_temp_directory(directory_name:str="dvk_top_ten") -> str:
     """
     Creates and returns a temporary directory for storing media.
 
+    :param directory_name: Name of the temporary direcrory, defaults to "dvk_top_ten"
+    :type directory_name: str
     :return: Path to the temporary directory
     :rtype: str
     """
-    temp_dir = abspath(join(abspath(gettempdir()), "dvk_top_ten"))
+    # Return None if directory name is invalid
+    if directory_name is None or directory_name == "":
+        return None
+    # Get temporary directory
+    temp_dir = abspath(join(abspath(gettempdir()), directory_name))
+    # Delete directory if it already exists
     if(exists(temp_dir)):
         rmtree(temp_dir)
+    # Create directory
     mkdir(temp_dir)
     return temp_dir
 

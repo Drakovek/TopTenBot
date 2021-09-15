@@ -15,14 +15,21 @@ def test_get_temp_directory():
     temp_dir = get_temp_directory()
     assert exists(temp_dir)
     assert basename(temp_dir) == "dvk_top_ten"
+    temp_dir = get_temp_directory("dvk_other")
+    assert exists(temp_dir)
+    print(basename(temp_dir))
+    assert basename(temp_dir) == "dvk_other"
     # Test deleting contents of temporary directory
     file = abspath(join(temp_dir, "file.txt"))
     with open(file, "w") as out_file:
         out_file.write("TEST")
     assert exists(file)
-    temp_dir = get_temp_directory()
+    temp_dir = get_temp_directory("dvk_other")
     assert exists(temp_dir)
     assert not exists(file)
+    # Test getting directory with invalid parameters
+    assert get_temp_directory(None) == None
+    assert get_temp_directory("") == None
 
 def test_create_video():
     # Test creating a video
