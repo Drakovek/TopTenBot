@@ -12,7 +12,7 @@ def test_create_video():
     """
     # Test creating a video
     test_dir = get_test_dir()
-    file = create_video("taco", "top 2 tacos!", "2", test_dir)
+    file = create_video("taco", "top 2 tacos!", "2", "240", test_dir)
     assert file == abspath(join(test_dir, "top 2 tacos.mp4"))
     assert exists(file)
     clip = VideoFileClip(file)
@@ -23,14 +23,16 @@ def test_create_video():
     assert isdir(sub)
     assert len(listdir(sub)) == 2
     # Test using invalid parameters
-    create_video(None, "top 2 tacos!", "2", test_dir) == None
-    create_video("", "top 2 tacos!", "2", test_dir) == None
-    create_video("taco", None, "2", test_dir) == None
-    create_video("taco", "", "2", test_dir) == None
-    create_video("taco", "top 2 tacos!", None, test_dir) == None
-    create_video("taco", "top 2 tacos!", "blah", test_dir) == None
-    create_video("taco", "top 2 tacos!", "2", None) == None
-    create_video("taco", "top 2 tacos!", "2", "/non/existant/dir/") == None
+    create_video(None, "top 2 tacos!", "2", "240", test_dir) == None
+    create_video("", "top 2 tacos!", "2", "240", test_dir) == None
+    create_video("taco", None, "2", "240", test_dir) == None
+    create_video("taco", "", "2", "240", test_dir) == None
+    create_video("taco", "top 2 tacos!", None, "240", test_dir) == None
+    create_video("taco", "top 2 tacos!", "blah", "240", test_dir) == None
+    create_video("taco", "top 2 tacos!", "2", None, test_dir) == None
+    create_video("taco", "top 2 tacos!", "2", "notNumber", test_dir) == None
+    create_video("taco", "top 2 tacos!", "2", "240", None) == None
+    create_video("taco", "top 2 tacos!", "2", "240", "/non/existant/dir/") == None
 
 def all_tests():
     """

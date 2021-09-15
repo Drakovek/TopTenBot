@@ -15,6 +15,7 @@ from shutil import move, rmtree
 def create_video(search:str=None,
             title:str=None,
             items:str="10",
+            width:str="240",
             directory:str=None) -> str:
     """
     Creates a top # video given a search string and title.
@@ -24,6 +25,8 @@ def create_video(search:str=None,
     :param title: Title of the video, defaults to None
     :type title: str, optional
     :param items: Number of items to show in the video as a str, defaults to "10" 
+    :type items: str, optional
+    :param items: Width of the video as a str, defaults to "240" 
     :type items: str, optional
     :param directory: Directory to save video into, defaults to None
     :type directory: str, optional
@@ -41,15 +44,21 @@ def create_video(search:str=None,
         return None
     # Get temporary directory for saving images into
     temp_dir = get_temp_directory("dvk_video")
+    # Get with to use for rendering video
+    try:
+        int_width = int(width)
+    except(TypeError, ValueError):
+        print("Number used for video width is invalid")
+        return None
     # Get list of files from the search query
     try:
         num_images = int(items)
-        dvks = get_images(search, temp_dir, num_images)
     except(TypeError, ValueError):
         print("Number used for the number of items is invalid")
         return None
+    dvks = get_images(search, temp_dir, num_images)
     # Get video visuals
-    video = create_list_video(title, dvks)
+    video = create_list_video(title, dvks, int_width)
     # Add songs to video
     print("Searching for songs...")
     songs = get_songs(temp_dir, int(video.duration))
@@ -94,6 +103,13 @@ def main():
         type=str,
         default="10")
     parser.add_argument(
+        "-w",
+        "--width",
+        metavar="#",
+        help="Width of the rendered video in pixels",
+        type=str,
+        default="240")
+    parser.add_argument(
         "-d",
         "--directory",
         metavar="DIR",
@@ -101,7 +117,7 @@ def main():
         type=str,
         default=str(getcwd()))
     args = parser.parse_args()
-    create_video(args.search, args.title, args.items, args.directory)
+    create_video(args.search, args.title, args.items, args.width, args.directory)
 
 if __name__ == "__main__":
     main()

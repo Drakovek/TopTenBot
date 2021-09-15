@@ -10,7 +10,7 @@ from os.path import abspath, basename, isdir, join
 from PIL import Image
 from typing import List
 
-def get_text_clip(text:str=None, fadein:bool=True, fadeout:bool=True) -> VideoClip:
+def get_text_clip(text:str=None, fadein:bool=True, fadeout:bool=True, width:int=240) -> VideoClip:
     """
     Returns a VideoClip showing given text in Comic Sans on a blue background.
 
@@ -20,23 +20,27 @@ def get_text_clip(text:str=None, fadein:bool=True, fadeout:bool=True) -> VideoCl
     :type fadein: boolean, optional
     :param fadeout: Whether to fade clip out to black, defaults to True
     :type fadeout: boolean, optional
+    :param width: Height of the video in pixels, defaults to 180
+    :type width: int, optional
     :return: Video clip of your glorious Comic Sans text
     :rtype: VideoClip
     """
     try:
         # Set text clip
+        fontsize = int(width/10)
         text_clip = TextClip(text, method="caption", size=(400, None),
-                    fontsize=20, font="Comic-Sans-MS", color="white")
-        text_clip = text_clip.set_pos("center").set_duration(4)
+                    fontsize=fontsize, font="Comic-Sans-MS", color="white")
+        text_clip = text_clip.set_position("center").set_duration(4)
         # Set color background
-        color_clip = ColorClip(size=(200,150), color=[45,152,255])
+        height = int(width*0.75)
+        color_clip = ColorClip(size=(width,height), color=[45,152,255])
         color_clip = color_clip.set_duration(4)
         # Get black fadein
-        start = ColorClip(size=(200,150), color=[0,0,0])
+        start = ColorClip(size=(width,height), color=[0,0,0])
         start = start.set_duration(1)
         start = start.crossfadeout(1)
         # Get black fadeout
-        end = ColorClip(size=(200,150), color=[0,0,0])
+        end = ColorClip(size=(width,height), color=[0,0,0])
         end = end.set_duration(1).set_start(3)
         end = end.crossfadein(1)
         # Composite clips together
@@ -50,7 +54,7 @@ def get_text_clip(text:str=None, fadein:bool=True, fadeout:bool=True) -> VideoCl
     except:
         return None
 
-def get_image_clip(image:str=None, fadein:bool=True, fadeout:bool=True) -> VideoClip:
+def get_image_clip(image:str=None, fadein:bool=True, fadeout:bool=True, width:int=240) -> VideoClip:
     """
     Returns a VideoClip showing a given image, resized if necessary.
 
@@ -60,27 +64,30 @@ def get_image_clip(image:str=None, fadein:bool=True, fadeout:bool=True) -> Video
     :type fadein: boolean, optional
     :param fadeout: Whether to fade clip out to black, defaults to True
     :type fadeout: boolean, optional
+    :param width: Height of the video in pixels, defaults to 180
+    :type width: int, optional
     :return: Video clip of given image.
     :rtype: VideoClip
     """
     try:
         # Resize Image
         original = Image.open(image)
-        width = original.size[0]
-        height = original.size[1]
-        new_width = 200
-        new_height = 150
-        if width < height:
-            ratio = height/width
-            new_height = int(ratio * 200)
+        owidth = original.size[0]
+        oheight = original.size[1]
+        height = int(width * 0.75)
+        nwidth = width
+        nheight = height
+        if owidth < oheight:
+            ratio = oheight/owidth
+            nheight = int(ratio * width)
         else:
-            ratio = width/height
-            new_width = int(ratio * 150)
-        resized = original.resize((new_width, new_height))
+            ratio = owidth/oheight
+            new_width = int(ratio * height)
+        resized = original.resize((nwidth, nheight))
         # Crop Image
-        x = int((new_width - 200)/2)
-        y = int((new_height - 150)/2)
-        resized = resized.crop((x,y, x+200, y+150))
+        x = int((nwidth - width)/2)
+        y = int((nheight - height)/2)
+        resized = resized.crop((x,y, x+width, y+height))
         # Save resized image
         parent = abspath(join(image, pardir))
         extension = get_extension(image)
@@ -89,17 +96,17 @@ def get_image_clip(image:str=None, fadein:bool=True, fadeout:bool=True) -> Video
         file = abspath(join(parent, file + "-rs" + ".png"))
         resized.save(file)
         # Set white background
-        color_clip = ColorClip(size=(200,150), color=[255,255,255])
+        color_clip = ColorClip(size=(width,height), color=[255,255,255])
         color_clip = color_clip.set_duration(4)
         # Get image clip
         image_clip = ImageClip(file)
         image_clip = image_clip.set_duration(4)
         # Get black fadein
-        start = ColorClip(size=(200, 150), color=[0,0,0])
+        start = ColorClip(size=(width, height), color=[0,0,0])
         start = start.set_duration(1)
         start = start.crossfadeout(1)
         # Get black fadeout
-        end = ColorClip(size=(200, 150), color=[0,0,0])
+        end = ColorClip(size=(width, height), color=[0,0,0])
         end = end.set_duration(1).set_start(3)
         end = end.crossfadein(1)
         # Composite clips together
@@ -113,7 +120,7 @@ def get_image_clip(image:str=None, fadein:bool=True, fadeout:bool=True) -> Video
     except:
         return None
 
-def create_list_video(title:str=None, dvks:List[Dvk]=None) -> VideoClip:
+def create_list_video(title:str=None, dvks:List[Dvk]=None, width:int=240) -> VideoClip:
     """
     Creates a top # video with a numbered label for each of a given set of images.
 
@@ -121,22 +128,24 @@ def create_list_video(title:str=None, dvks:List[Dvk]=None) -> VideoClip:
     :type title: str, optional
     :param dvks: List of dvks with connected image files, defaults to None
     :type dvks: list[Dvk], optional
+    :param width: Height of the video in pixels, defaults to 180
+    :type width: int, optional
     :return: Top # video
     :rtype: VideoClip
     """
     try:
         # Get title clip
-        clips = [get_text_clip(title, False, True)]
+        clips = [get_text_clip(title, False, True, width)]
         # Get list of text clips showing numbers
         size = len(dvks)
         number_clips = []
         for i in range(0, size):
-            number_clips.append(get_text_clip("number " + str(size-i)))
+            number_clips.append(get_text_clip("number " + str(size-i), True, True, width))
         # Get list of image clips
         image_clips = []
         for i in range(0, size):
             image = dvks[i].get_media_file()
-            image_clips.append(get_image_clip(image, True, i<size-1))
+            image_clips.append(get_image_clip(image, True, i<size-1, width))
         # Combine lists of clips
         for i in range(0, size):
             clips.append(number_clips[i])
