@@ -13,10 +13,10 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="TopTenBot",
-    version="0.2.0",
+    version="0.2.1",
     author="Drakovek",
     author_email="DrakovekMail@gmail.com",
-    description=long_description,
+    description="Utility for creating top 10 videos",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/Drakovek/dvk_manga",
