@@ -23,3 +23,13 @@ If you are installing from source, the following python packages are required:
 * [Pillow](https://pypi.org/project/Pillow/)
 * [youtube-dl](https://pypi.org/project/youtube_dl/)
 * [youtube-search-python](https://pypi.org/project/youtube-search-python/)
+
+# Running Program
+
+Simply use the "top10bot" command in your terminal:
+
+    top10bot search title [-i items] [-d directory] [-h for help]
+
+For example, the following command would create a video titled "top 25 lizards"
+
+    top10bot lizard "top 25 lizards" -i 25
