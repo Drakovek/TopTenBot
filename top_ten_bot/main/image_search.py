@@ -54,7 +54,7 @@ def get_images(search:str=None,
         size = int(num_images*1.5)
         pages = int(num_images/3) + 3
         while page_num < pages and len(images) < size:
-            sleep(5)
+            sleep(3)
             json = json_connect(url + str(page_num))
             results = json["results"]
             for result in results:
@@ -92,7 +92,7 @@ def get_images(search:str=None,
                 except:
                     dvk = None
             del images[link_num]
-            sleep(2)
+            sleep(1)
         return dvks
     except:
         return []

@@ -26,17 +26,17 @@ def get_text_clip(text:str=None, fadein:bool=True, fadeout:bool=True) -> VideoCl
     try:
         # Set text clip
         text_clip = TextClip(text, method="caption", size=(400, None),
-                    fontsize=48, font="Comic-Sans-MS", color="white")
+                    fontsize=20, font="Comic-Sans-MS", color="white")
         text_clip = text_clip.set_pos("center").set_duration(4)
         # Set color background
-        color_clip = ColorClip(size=(480,360), color=[45,152,255])
+        color_clip = ColorClip(size=(200,150), color=[45,152,255])
         color_clip = color_clip.set_duration(4)
         # Get black fadein
-        start = ColorClip(size=(480, 360), color=[0,0,0])
+        start = ColorClip(size=(200,150), color=[0,0,0])
         start = start.set_duration(1)
         start = start.crossfadeout(1)
         # Get black fadeout
-        end = ColorClip(size=(480, 360), color=[0,0,0])
+        end = ColorClip(size=(200,150), color=[0,0,0])
         end = end.set_duration(1).set_start(3)
         end = end.crossfadein(1)
         # Composite clips together
@@ -68,19 +68,19 @@ def get_image_clip(image:str=None, fadein:bool=True, fadeout:bool=True) -> Video
         original = Image.open(image)
         width = original.size[0]
         height = original.size[1]
-        new_width = 480
-        new_height = 360
+        new_width = 200
+        new_height = 150
         if width < height:
             ratio = height/width
-            new_height = int(ratio * 480)
+            new_height = int(ratio * 200)
         else:
             ratio = width/height
-            new_width = int(ratio * 360)
+            new_width = int(ratio * 150)
         resized = original.resize((new_width, new_height))
         # Crop Image
-        x = int((new_width - 480)/2)
-        y = int((new_height - 360)/2)
-        resized = resized.crop((x,y, x+480, y+360))
+        x = int((new_width - 200)/2)
+        y = int((new_height - 150)/2)
+        resized = resized.crop((x,y, x+200, y+150))
         # Save resized image
         parent = abspath(join(image, pardir))
         extension = get_extension(image)
@@ -89,17 +89,17 @@ def get_image_clip(image:str=None, fadein:bool=True, fadeout:bool=True) -> Video
         file = abspath(join(parent, file + "-rs" + ".png"))
         resized.save(file)
         # Set white background
-        color_clip = ColorClip(size=(480,360), color=[255,255,255])
+        color_clip = ColorClip(size=(200,150), color=[255,255,255])
         color_clip = color_clip.set_duration(4)
         # Get image clip
         image_clip = ImageClip(file)
         image_clip = image_clip.set_duration(4)
         # Get black fadein
-        start = ColorClip(size=(480, 360), color=[0,0,0])
+        start = ColorClip(size=(200, 150), color=[0,0,0])
         start = start.set_duration(1)
         start = start.crossfadeout(1)
         # Get black fadeout
-        end = ColorClip(size=(480, 360), color=[0,0,0])
+        end = ColorClip(size=(200, 150), color=[0,0,0])
         end = end.set_duration(1).set_start(3)
         end = end.crossfadein(1)
         # Composite clips together
@@ -186,4 +186,4 @@ def write_video(video:VideoClip=None, file:str=None):
             and file is not None
             and isdir(abspath(join(file, pardir)))):
         # Write video to file
-        video.write_videofile(abspath(file), fps=12, audio_bitrate="50k")
+        video.write_videofile(abspath(file), fps=12, audio_bitrate="30k")

@@ -57,7 +57,7 @@ def create_video(search:str=None,
     with_audio = add_audio_to_video(video, songs)
     # Write the video to file
     filename = get_filename(title)
-    video_file = join(abspath(directory), filename + ".webm")
+    video_file = join(abspath(directory), filename + ".mp4")
     write_video(with_audio, video_file)
     # Create image folder
     image_folder = abspath(join(abspath(directory), filename))

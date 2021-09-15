@@ -13,7 +13,7 @@ def test_create_video():
     # Test creating a video
     test_dir = get_test_dir()
     file = create_video("taco", "top 2 tacos!", "2", test_dir)
-    assert file == abspath(join(test_dir, "top 2 tacos.webm"))
+    assert file == abspath(join(test_dir, "top 2 tacos.mp4"))
     assert exists(file)
     clip = VideoFileClip(file)
     assert int(clip.duration) == 20
