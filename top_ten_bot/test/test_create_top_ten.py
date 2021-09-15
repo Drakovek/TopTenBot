@@ -5,40 +5,18 @@ from moviepy.editor import VideoFileClip
 from os import listdir
 from os.path import abspath, basename, exists, isdir, join
 from top_ten_bot.main.create_top_ten import create_video
-from top_ten_bot.main.create_top_ten import get_temp_directory
-
-def test_get_temp_directory():
-    """
-    Tests the get_temp_directory function.
-    """
-    # Test getting temporary directory.
-    temp_dir = get_temp_directory()
-    assert exists(temp_dir)
-    assert basename(temp_dir) == "dvk_top_ten"
-    temp_dir = get_temp_directory("dvk_other")
-    assert exists(temp_dir)
-    print(basename(temp_dir))
-    assert basename(temp_dir) == "dvk_other"
-    # Test deleting contents of temporary directory
-    file = abspath(join(temp_dir, "file.txt"))
-    with open(file, "w") as out_file:
-        out_file.write("TEST")
-    assert exists(file)
-    temp_dir = get_temp_directory("dvk_other")
-    assert exists(temp_dir)
-    assert not exists(file)
-    # Test getting directory with invalid parameters
-    assert get_temp_directory(None) == None
-    assert get_temp_directory("") == None
 
 def test_create_video():
+    """
+    Tests the create_video function.
+    """
     # Test creating a video
     test_dir = get_test_dir()
     file = create_video("taco", "top 2 tacos!", "2", test_dir)
     assert file == abspath(join(test_dir, "top 2 tacos.webm"))
     assert exists(file)
     clip = VideoFileClip(file)
-    assert clip.duration == 20
+    assert int(clip.duration) == 20
     # Test that image files were moved to image folder
     sub = abspath(join(test_dir, "top 2 tacos"))
     assert exists(sub)
@@ -58,5 +36,4 @@ def all_tests():
     """
     Runs all tests for the create_top_ten.py module.
     """
-    test_get_temp_directory()
     test_create_video()

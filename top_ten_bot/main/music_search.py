@@ -3,12 +3,13 @@
 from dvk_archive.main.web.bs_connect import bs_connect
 from json import loads
 from moviepy.editor import AudioFileClip
-from os import listdir
+from os import listdir, mkdir
 from os.path import abspath, basename, exists, isdir, join
 from random import randint
-from shutil import move
+from shutil import move, rmtree
+from tempfile import gettempdir
 from time import sleep
-from top_ten_bot.main.create_top_ten import get_temp_directory
+from traceback import print_exc
 from typing import List
 from youtubesearchpython import VideosSearch
 import youtube_dl
@@ -20,6 +21,27 @@ hot_100_links = ["https://en.wikipedia.org/wiki/Billboard_Year-End_Hot_100_singl
             "https://en.wikipedia.org/wiki/Billboard_Year-End_Hot_100_singles_of_2013",
             "https://en.wikipedia.org/wiki/Billboard_Year-End_Hot_100_singles_of_2014",
             "https://en.wikipedia.org/wiki/Billboard_Year-End_Hot_100_singles_of_2015"]
+
+def get_temp_directory(directory_name:str="dvk_top_ten") -> str:
+    """
+    Creates and returns a temporary directory for storing media.
+
+    :param directory_name: Name of the temporary direcrory, defaults to "dvk_top_ten"
+    :type directory_name: str
+    :return: Path to the temporary directory
+    :rtype: str
+    """
+    # Return None if directory name is invalid
+    if directory_name is None or directory_name == "":
+        return None
+    # Get temporary directory
+    temp_dir = abspath(join(abspath(gettempdir()), directory_name))
+    # Delete directory if it already exists
+    if(exists(temp_dir)):
+        rmtree(temp_dir)
+    # Create directory
+    mkdir(temp_dir)
+    return temp_dir
 
 def get_top_40(url:str=None) -> List[List[str]]:
     """
@@ -165,8 +187,8 @@ def get_songs(directory:str=None, duration:int=0) -> List[str]:
                 clip = AudioFileClip(file)
                 cur_duration += clip.duration
                 song_num += 1
-        print(return_songs)
         return return_songs
     except:
+        print_exc()
         return []
     

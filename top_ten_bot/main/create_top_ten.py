@@ -4,31 +4,13 @@ from argparse import ArgumentParser
 from dvk_archive.main.processing.string_processing import get_filename
 from os import getcwd, mkdir
 from os.path import abspath, basename, exists, isdir, join
-from tempfile import gettempdir
 from top_ten_bot.main.image_search import get_images
-from top_ten_bot.main.encode_video import create_list_video, write_video
+from top_ten_bot.main.encode_video import add_audio_to_video
+from top_ten_bot.main.encode_video import create_list_video
+from top_ten_bot.main.encode_video import write_video
+from top_ten_bot.main.music_search import get_songs
+from top_ten_bot.main.music_search import get_temp_directory
 from shutil import move, rmtree
-
-def get_temp_directory(directory_name:str="dvk_top_ten") -> str:
-    """
-    Creates and returns a temporary directory for storing media.
-
-    :param directory_name: Name of the temporary direcrory, defaults to "dvk_top_ten"
-    :type directory_name: str
-    :return: Path to the temporary directory
-    :rtype: str
-    """
-    # Return None if directory name is invalid
-    if directory_name is None or directory_name == "":
-        return None
-    # Get temporary directory
-    temp_dir = abspath(join(abspath(gettempdir()), directory_name))
-    # Delete directory if it already exists
-    if(exists(temp_dir)):
-        rmtree(temp_dir)
-    # Create directory
-    mkdir(temp_dir)
-    return temp_dir
 
 def create_video(search:str=None,
             title:str=None,
@@ -58,7 +40,7 @@ def create_video(search:str=None,
         print("Directory is invalid.")
         return None
     # Get temporary directory for saving images into
-    temp_dir = get_temp_directory()
+    temp_dir = get_temp_directory("dvk_video")
     # Get list of files from the search query
     try:
         num_images = int(items)
@@ -68,10 +50,15 @@ def create_video(search:str=None,
         return None
     # Get video visuals
     video = create_list_video(title, dvks)
+    # Add songs to video
+    print("Searching for songs...")
+    songs = get_songs(temp_dir, int(video.duration))
+    print(songs)
+    with_audio = add_audio_to_video(video, songs)
     # Write the video to file
     filename = get_filename(title)
     video_file = join(abspath(directory), filename + ".webm")
-    write_video(video, video_file)
+    write_video(with_audio, video_file)
     # Create image folder
     image_folder = abspath(join(abspath(directory), filename))
     if not exists(image_folder):

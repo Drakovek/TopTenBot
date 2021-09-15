@@ -4,11 +4,13 @@ from dvk_archive.main.file.dvk import Dvk
 from dvk_archive.main.web.bs_connect import download
 from dvk_archive.test.temp_dir import get_test_dir
 from moviepy.editor import VideoFileClip
+from top_ten_bot.main.encode_video import add_audio_to_video
 from top_ten_bot.main.encode_video import create_list_video
 from top_ten_bot.main.encode_video import get_image_clip
 from top_ten_bot.main.encode_video import get_text_clip
 from top_ten_bot.main.encode_video import write_video
 from top_ten_bot.main.image_search import get_images
+from top_ten_bot.main.music_search import download_music
 from os.path import abspath, exists, join
 
 def test_get_text_clip():
@@ -87,10 +89,31 @@ def test_write_video():
     assert not exists(file)
     write_video(video, None)
 
+def test_add_audio_to_video():
+    """
+    Tests the add_audio_to_video function.
+    """
+    # Get test audio file
+    test_dir = get_test_dir()
+    file = download_music("https://www.youtube.com/watch?v=mUJIALZU5_M", "1", test_dir)
+    assert exists(file)
+    # Get test text file
+    video = get_text_clip("test text")
+    # Test adding audio to video clip
+    mixed = add_audio_to_video(video, [file])
+    assert mixed is not None
+    assert mixed.duration == 4
+    # Test using invalid parameters
+    mixed = add_audio_to_video(video, []) is None
+    add_audio_to_video(video, [""]) is None
+    add_audio_to_video(video, [None]) is None
+    add_audio_to_video(None, [file]) is None
+
 def all_tests():
     """
     Runs all tests for the encode_video.py module.
     """
+    test_add_audio_to_video()
     test_get_text_clip()
     test_get_image_clip()
     test_write_video()

@@ -2,7 +2,8 @@
 
 from dvk_archive.main.file.dvk import Dvk
 from dvk_archive.main.processing.string_processing import get_extension
-from moviepy.editor import concatenate_videoclips
+from moviepy.editor import AudioFileClip
+from moviepy.editor import concatenate_videoclips, concatenate_audioclips
 from moviepy.editor import ColorClip, CompositeVideoClip, ImageClip, TextClip, VideoClip
 from os import pardir
 from os.path import abspath, basename, isdir, join
@@ -146,6 +147,31 @@ def create_list_video(title:str=None, dvks:List[Dvk]=None) -> VideoClip:
     except:
         return None
 
+def add_audio_to_video(video:VideoClip=None, audio:List[str]=None) -> VideoClip:
+    """
+    Adds audio from a list of audio files to a given video file.
+
+    :param video: Video to add audio to, defaults to None
+    :type video: VideoClip, optional
+    :param audio: List of audio files to add to video, defaults to None
+    :type audio: list[str], optional
+    :return: VideoClip with added audio
+    :rtype: VideoClip
+    """
+    try:
+        # Concatenate audio files
+        audio_clips = []
+        for file in audio:
+            clip = AudioFileClip(file)
+            audio_clips.append(clip)
+        full_audio = concatenate_audioclips(audio_clips)
+        # Set video audio to concatenated audio
+        full_audio = full_audio.set_duration(video.duration)
+        video.audio = full_audio
+        return video
+    except:
+        return None
+    
 def write_video(video:VideoClip=None, file:str=None):
     """
     Writes a given VideoClip to a file.
@@ -160,5 +186,4 @@ def write_video(video:VideoClip=None, file:str=None):
             and file is not None
             and isdir(abspath(join(file, pardir)))):
         # Write video to file
-        video.write_videofile(abspath(file),
-                    fps=12, audio_bitrate="50k")
+        video.write_videofile(abspath(file), fps=12, audio_bitrate="50k")

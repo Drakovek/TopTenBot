@@ -12,8 +12,8 @@ def test_all():
     Runs all unit tests for the top_ten_bot program.
     """
     try:
-        music_search()
         image_search()
+        music_search()
         encode_video()
         create_top_ten()
         print("\033[32mAll TopTenBot tests passed.\033[0m")
@@ -92,8 +92,8 @@ def main():
     args = parser.parse_args()
     if args.imagesearch:
         test_image_search()
-    if args.musicsearch:
-        test_image_search() 
+    elif args.musicsearch:
+        test_music_search() 
     elif args.encode:
         test_encode_video()
     elif args.createtop:

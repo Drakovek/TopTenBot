@@ -1,12 +1,36 @@
 #!/usr/bin/env python3
 
 from dvk_archive.test.temp_dir import get_test_dir
-from os.path import abspath, exists, join
+from os.path import abspath, basename, exists, join
 from moviepy.editor import AudioFileClip
 from top_ten_bot.main.music_search import download_music
 from top_ten_bot.main.music_search import find_song_video
 from top_ten_bot.main.music_search import get_songs
+from top_ten_bot.main.music_search import get_temp_directory
 from top_ten_bot.main.music_search import get_top_40
+
+def test_get_temp_directory():
+    """
+    Tests the get_temp_directory function.
+    """
+    # Test getting temporary directory.
+    temp_dir = get_temp_directory()
+    assert exists(temp_dir)
+    assert basename(temp_dir) == "dvk_top_ten"
+    temp_dir = get_temp_directory("dvk_other")
+    assert exists(temp_dir)
+    assert basename(temp_dir) == "dvk_other"
+    # Test deleting contents of temporary directory
+    file = abspath(join(temp_dir, "file.txt"))
+    with open(file, "w") as out_file:
+        out_file.write("TEST")
+    assert exists(file)
+    temp_dir = get_temp_directory("dvk_other")
+    assert exists(temp_dir)
+    assert not exists(file)
+    # Test getting directory with invalid parameters
+    assert get_temp_directory(None) == None
+    assert get_temp_directory("") == None
 
 def test_get_top_40():
     """
@@ -87,6 +111,7 @@ def all_tests():
     """
     Runs all tests for the music_search.py module.
     """
+    test_get_temp_directory()
     test_get_top_40()
     test_find_song_video()
     test_download_music()
