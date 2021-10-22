@@ -10,6 +10,29 @@ from os.path import abspath, basename, isdir, join
 from PIL import Image
 from typing import List
 
+def get_default_clip(width:int=240) -> VideoClip:
+    """
+    Returns a default VideoClip showing "MISSING" text on a black background.
+
+    :param width: Height of the video in pixels, defaults to 180
+    :type width: int, optional
+    :return: Default VideoClip
+    :rtype: VideoClip
+    """
+    # Set text clip
+    fontsize = int(width/10)
+    text_clip = TextClip("[MISSING]", method="caption", size=(400, None),
+                fontsize=fontsize, font="Comic-Sans-MS", color="white")
+    text_clip = text_clip.set_position("center").set_duration(2)
+    # Set color background
+    height = int(width*0.75)
+    color_clip = ColorClip(size=(width,height), color=[0,0,0])
+    color_clip = color_clip.set_duration(2)
+    # Composite clips together
+    video = CompositeVideoClip([color_clip, text_clip])
+    # Return composite video
+    return video
+
 def get_text_clip(text:str=None, fadein:bool=True, fadeout:bool=True, width:int=240) -> VideoClip:
     """
     Returns a VideoClip showing given text in Comic Sans on a blue background.
@@ -52,7 +75,7 @@ def get_text_clip(text:str=None, fadein:bool=True, fadeout:bool=True, width:int=
         # Return composite video
         return video
     except:
-        return None
+        return get_default_clip()
 
 def get_image_clip(image:str=None, fadein:bool=True, fadeout:bool=True, width:int=240) -> VideoClip:
     """
@@ -118,7 +141,7 @@ def get_image_clip(image:str=None, fadein:bool=True, fadeout:bool=True, width:in
         # return composited video
         return video
     except:
-        return None
+        return get_default_clip()
 
 def create_list_video(title:str=None, dvks:List[Dvk]=None, width:int=240) -> VideoClip:
     """
@@ -136,6 +159,15 @@ def create_list_video(title:str=None, dvks:List[Dvk]=None, width:int=240) -> Vid
     try:
         # Get title clip
         clips = [get_text_clip(title, False, True, width)]
+        # Remove invalid Dvks
+        index = 0
+        while index < len(dvks):
+            if dvks[index].get_media_file() is None:
+                del dvks[index]
+                continue
+            index += 1
+        if len(dvks) == 0:
+            return None
         # Get list of text clips showing numbers
         size = len(dvks)
         number_clips = []
@@ -179,7 +211,7 @@ def add_audio_to_video(video:VideoClip=None, audio:List[str]=None) -> VideoClip:
         video.audio = full_audio
         return video
     except:
-        return None
+        return video
     
 def write_video(video:VideoClip=None, file:str=None):
     """

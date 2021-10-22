@@ -59,10 +59,11 @@ def create_video(search:str=None,
     dvks = get_images(search, temp_dir, num_images)
     # Get video visuals
     video = create_list_video(title, dvks, int_width)
+    if video is None:
+        return None
     # Add songs to video
     print("Searching for songs...")
     songs = get_songs(temp_dir, int(video.duration))
-    print(songs)
     with_audio = add_audio_to_video(video, songs)
     # Write the video to file
     filename = get_filename(title)

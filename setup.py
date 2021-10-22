@@ -13,7 +13,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="TopTenBot",
-    version="0.2.2",
+    version="0.3.0",
     author="Drakovek",
     author_email="DrakovekMail@gmail.com",
     description="Utility for creating top 10 videos",

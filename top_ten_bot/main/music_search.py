@@ -91,19 +91,22 @@ def find_song_video(song_title:str=None, artist:str=None) -> str:
     # Return None if parameters are invalid
     if song_title is None or song_title == "" or artist is None or artist == "":
         return None
-    # Get list of search results
-    search = song_title + " " + artist + " lyrics"
-    video_search = VideosSearch(search, limit = 2)
-    results = video_search.result()["result"]
-    sleep(2)
-    # Get link that matches the search query
-    for result in results:
-        title = result["title"].lower()
-        if ("lyrics" in title
-                    and song_title.lower() in title
-                    and artist.lower() in title):
-            return "https://www.youtube.com/watch?v=" + result["id"]
-    return None
+    try:
+        # Get list of search results
+        search = song_title + " " + artist + " lyrics"
+        video_search = VideosSearch(search, limit = 2)
+        results = video_search.result()["result"]
+        sleep(2)
+        # Get link that matches the search query
+        for result in results:
+            title = result["title"].lower()
+            if ("lyrics" in title
+                        and song_title.lower() in title
+                        and artist.lower() in title):
+                return "https://www.youtube.com/watch?v=" + result["id"]
+        return None
+    except:
+        return None
 
 def download_music(url:str=None, filename:str=None, directory:str=None) -> str:
     """
@@ -189,6 +192,4 @@ def get_songs(directory:str=None, duration:int=0) -> List[str]:
                 song_num += 1
         return return_songs
     except:
-        print_exc()
         return []
-    

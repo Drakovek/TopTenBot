@@ -80,9 +80,12 @@ def get_images(search:str=None,
             dvk.set_media_file(filename + get_extension(images[link_num]))
             dvk.write_media()
             # Check if files were actually downloaded
-            if exists(dvk.get_media_file()):
+            ext = get_extension(dvk.get_media_file())
+            if ((ext == ".png" or ext == ".jpg" or ext == ".jpeg")
+                        and exists(dvk.get_media_file())):
                 try:
-                    # Check image isn't corrupted.
+                    # Check image isn't corrupted and is usable
+                    
                     image = Image.open(dvk.get_media_file())
                     w = image.size[0]
                     h = image.size[1]

@@ -6,12 +6,22 @@ from dvk_archive.test.temp_dir import get_test_dir
 from moviepy.editor import VideoFileClip
 from top_ten_bot.main.encode_video import add_audio_to_video
 from top_ten_bot.main.encode_video import create_list_video
+from top_ten_bot.main.encode_video import get_default_clip
 from top_ten_bot.main.encode_video import get_image_clip
 from top_ten_bot.main.encode_video import get_text_clip
 from top_ten_bot.main.encode_video import write_video
 from top_ten_bot.main.image_search import get_images
 from top_ten_bot.main.music_search import download_music
 from os.path import abspath, exists, join
+
+def test_get_default_clip():
+    """
+    Tests the get_default_clip function.
+    """
+    # Test video is the correct duration
+    video = get_default_clip()
+    assert video is not None
+    assert video.duration == 2
 
 def test_get_text_clip():
     """
@@ -21,9 +31,10 @@ def test_get_text_clip():
     video = get_text_clip("uniportant text")
     assert video is not None
     assert video.duration == 4
-    # Test using invalid parameters
+    # Test default clip is returned when using invalid parameters
     video = get_text_clip(None)
-    assert video is None
+    assert video is not None
+    assert video.duration == 2
 
 def test_get_image_clip():
     """
@@ -43,8 +54,12 @@ def test_get_image_clip():
     file = abspath(join(test_dir, "image-rs.png"))
     assert exists(file)
     # Test using invalid parameters
-    assert get_image_clip("/non/existant/file") is None
-    assert get_image_clip(None) is None
+    video = get_image_clip("/non/existant/file")
+    assert video is not None
+    assert video.duration == 2
+    video = get_image_clip(None)
+    assert video is not None
+    assert video.duration == 2
 
 def test_create_list_video():
     """
@@ -58,14 +73,18 @@ def test_create_list_video():
     video = create_list_video("top 2 bananas", dvks)
     assert video is not None
     assert video.duration == 20
-    # Test using empty list
-    video = create_list_video("title", [])
+    # Test creating video when only some dvks are invalid
+    partial = [Dvk(), dvks[0], Dvk(), Dvk()]
+    video = create_list_video("Partial", partial)
     assert video is not None
-    assert video.duration == 4
+    assert video.duration == 12
     # Test using invalid parameters
-    assert create_list_video(None, dvks) == None
-    assert create_list_video("title", None) == None
-    assert create_list_video("title", [Dvk()]) == None
+    video = create_list_video(None, dvks)
+    assert video is not None
+    assert video.duration == 18
+    assert create_list_video("title", None) is None
+    assert create_list_video("title", [Dvk()]) is None
+    assert create_list_video("title", [Dvk(), None]) is None
 
 def test_write_video():
     """
@@ -96,6 +115,7 @@ def test_add_audio_to_video():
     # Get test audio file
     test_dir = get_test_dir()
     file = download_music("https://www.youtube.com/watch?v=mUJIALZU5_M", "1", test_dir)
+    assert file is not None
     assert exists(file)
     # Get test text file
     video = get_text_clip("test text")
@@ -104,17 +124,25 @@ def test_add_audio_to_video():
     assert mixed is not None
     assert mixed.duration == 4
     # Test using invalid parameters
-    mixed = add_audio_to_video(video, []) is None
-    add_audio_to_video(video, [""]) is None
-    add_audio_to_video(video, [None]) is None
-    add_audio_to_video(None, [file]) is None
+    mixed = add_audio_to_video(video, [])
+    assert mixed is not None
+    assert mixed.duration == 4
+    mixed = add_audio_to_video(video, [""])
+    assert mixed is not None
+    assert mixed.duration == 4
+    mixed = add_audio_to_video(video, [None])
+    assert mixed is not None
+    assert mixed.duration == 4
+    assert add_audio_to_video(None, [file]) is None
 
 def all_tests():
     """
     Runs all tests for the encode_video.py module.
     """
-    test_add_audio_to_video()
+    test_get_default_clip()
     test_get_text_clip()
     test_get_image_clip()
     test_write_video()
     test_create_list_video()
+    test_add_audio_to_video()
+    
