@@ -12,9 +12,9 @@ def test_all():
     Runs all unit tests for the top_ten_bot program.
     """
     try:
+        encode_video()
         image_search()
         music_search()
-        encode_video()
         create_top_ten()
         print("\033[32mAll TopTenBot tests passed.\033[0m")
     except AssertionError:

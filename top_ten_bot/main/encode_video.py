@@ -1,37 +1,98 @@
 #!/usr/bin/env python3
 
+
 from dvk_archive.main.file.dvk import Dvk
 from dvk_archive.main.processing.string_processing import get_extension
+from dvk_archive.main.web.bs_connect import download
 from moviepy.editor import AudioFileClip
 from moviepy.editor import concatenate_videoclips, concatenate_audioclips
-from moviepy.editor import ColorClip, CompositeVideoClip, ImageClip, TextClip, VideoClip
-from os import pardir
-from os.path import abspath, basename, isdir, join
-from PIL import Image
+from moviepy.editor import ColorClip, CompositeVideoClip, ImageClip, VideoClip
+from os import mkdir, pardir
+from os.path import abspath, basename, isdir, exists, join
+from PIL import Image, ImageDraw, ImageFont
+from tempfile import gettempdir
+from textwrap import wrap
 from typing import List
+from zipfile import ZipFile
+
+def create_text_image(text:str=None, width:int=240) -> str:
+    """
+    Creates an image to use as a title card in Comic Sans.
+
+    :param text: Text to use in the image, defaults to None
+    :type text: str, optional
+    :param width: Width of the image in pixels, defaults to 240
+    :type width: int, optional
+    :return: Path of the generated image file
+    :rtype: str
+    """
+    # Set up temp directory
+    temp_dir = abspath(join(abspath(gettempdir()), "dvk_text"))
+    if not exists(temp_dir):
+        mkdir(temp_dir)
+    # Create solid color background
+    height = int(width*0.75)
+    image = Image.new(mode="RGB", size=(width,height), color=(45,152,255))
+    if text is None:
+        text_image = abspath(join(temp_dir, "missing.png"))
+        image.save(text_image)
+        return text_image
+    # Get Comic Sans File
+    font_file = abspath(join(temp_dir, "LDFComicSans.ttf"))
+    # Download Comic Sans if Necessary
+    if not exists(font_file):
+        zip_file = abspath(join(temp_dir, "comic.zip"))
+        url = "https://www.dafontfree.co/wp-content/uploads/2021/05/LDF-ComicSans.zip"
+        download(url, zip_file)
+        # Unzip Contents
+        with ZipFile(zip_file, 'r') as zf:
+            zf.extractall(temp_dir)
+        assert exists(font_file)
+    # Split text into lines
+    lines = []
+    font_size = int(width/10)
+    char_width = (int(width / (font_size/2))) - 2
+    for line in wrap(text, width=char_width):
+        lines.append(str(line))
+    # Create draw object and font
+    space = int(font_size/4)
+    draw = ImageDraw.Draw(image)
+    font = ImageFont.truetype(font=font_file, size=font_size)
+    # Draw lines of text
+    size = len(lines)
+    block = (font_size * size) + (space * (size - 1))
+    offset = int((height - block) / 2)
+    for i in range(0, len(lines)):
+        w, h = draw.textsize(lines[i], font=font)
+        y = (i * font_size) + offset
+        if i > 0:
+            y += (space * i)
+        draw.text(xy=(int((width-w)/2),y),
+                    text=lines[i],
+                    fill=(255,255,255),
+                    font=font,
+                    align="center")
+    # Save image to file
+    text_image = abspath(join(temp_dir, "text.png"))
+    image.save(text_image)
+    return text_image
 
 def get_default_clip(width:int=240) -> VideoClip:
     """
-    Returns a default VideoClip showing "MISSING" text on a black background.
+    Returns a default VideoClip showing "MISSING" text on a blue background.
 
-    :param width: Height of the video in pixels, defaults to 180
+    :param width: Width of the video in pixels, defaults to 240
     :type width: int, optional
     :return: Default VideoClip
     :rtype: VideoClip
     """
-    # Set text clip
-    fontsize = int(width/10)
-    text_clip = TextClip("[MISSING]", method="caption", size=(400, None),
-                fontsize=fontsize, font="Comic-Sans-MS", color="white")
-    text_clip = text_clip.set_position("center").set_duration(2)
-    # Set color background
-    height = int(width*0.75)
-    color_clip = ColorClip(size=(width,height), color=[0,0,0])
-    color_clip = color_clip.set_duration(2)
-    # Composite clips together
-    video = CompositeVideoClip([color_clip, text_clip])
-    # Return composite video
-    return video
+    # Get text card
+    file = create_text_image("[Missing]", width)
+    # Get image clip
+    image_clip = ImageClip(file)
+    image_clip = image_clip.set_duration(2)
+    # Return image clip
+    return image_clip
 
 def get_text_clip(text:str=None, fadein:bool=True, fadeout:bool=True, width:int=240) -> VideoClip:
     """
@@ -43,39 +104,20 @@ def get_text_clip(text:str=None, fadein:bool=True, fadeout:bool=True, width:int=
     :type fadein: boolean, optional
     :param fadeout: Whether to fade clip out to black, defaults to True
     :type fadeout: boolean, optional
-    :param width: Height of the video in pixels, defaults to 180
+    :param width: Width of the video in pixels, defaults to 240
     :type width: int, optional
     :return: Video clip of your glorious Comic Sans text
     :rtype: VideoClip
     """
-    try:
-        # Set text clip
-        fontsize = int(width/10)
-        text_clip = TextClip(text, method="caption", size=(400, None),
-                    fontsize=fontsize, font="Comic-Sans-MS", color="white")
-        text_clip = text_clip.set_position("center").set_duration(4)
-        # Set color background
-        height = int(width*0.75)
-        color_clip = ColorClip(size=(width,height), color=[45,152,255])
-        color_clip = color_clip.set_duration(4)
-        # Get black fadein
-        start = ColorClip(size=(width,height), color=[0,0,0])
-        start = start.set_duration(1)
-        start = start.crossfadeout(1)
-        # Get black fadeout
-        end = ColorClip(size=(width,height), color=[0,0,0])
-        end = end.set_duration(1).set_start(3)
-        end = end.crossfadein(1)
-        # Composite clips together
-        video = CompositeVideoClip([color_clip, text_clip])
-        if fadein:
-            video = CompositeVideoClip([video, start])
-        if fadeout:
-            video = CompositeVideoClip([video, end])
-        # Return composite video
-        return video
-    except:
+    # Return default clip if text is None
+    if text is None:
         return get_default_clip()
+    # Get text card
+    file = create_text_image(text, width)
+    # Get image clip
+    video = get_image_clip(file, fadein, fadeout, width)
+    # Return video
+    return video
 
 def get_image_clip(image:str=None, fadein:bool=True, fadeout:bool=True, width:int=240) -> VideoClip:
     """
@@ -87,7 +129,7 @@ def get_image_clip(image:str=None, fadein:bool=True, fadeout:bool=True, width:in
     :type fadein: boolean, optional
     :param fadeout: Whether to fade clip out to black, defaults to True
     :type fadeout: boolean, optional
-    :param width: Height of the video in pixels, defaults to 180
+    :param width: Width of the video in pixels, defaults to 240
     :type width: int, optional
     :return: Video clip of given image.
     :rtype: VideoClip

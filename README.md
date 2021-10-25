@@ -8,11 +8,6 @@ This program pulls images and audio from the internet at random based on a searc
 
 # Installation
 
-This program requires [ImageMagick](https://imagemagick.org/index.php) to be installed on your system.
-ImageMagick is used by moviepy to generate text, and should be detected automatically on MacOS and Unix-based systems.
-
-ImageMagick will not be detected on Windows and some versions of Ubuntu. Follow the instructions on the [moviepy website](https://zulko.github.io/moviepy/install.html) if ImageMagick isn't working correctly.
-
 TopTenBot can be intalled from its [PyPI package](https://pypi.org/project/TopTenBot/) using pip:
 
     pip install TopTenBot

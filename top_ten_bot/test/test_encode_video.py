@@ -6,13 +6,41 @@ from dvk_archive.test.temp_dir import get_test_dir
 from moviepy.editor import VideoFileClip
 from top_ten_bot.main.encode_video import add_audio_to_video
 from top_ten_bot.main.encode_video import create_list_video
+from top_ten_bot.main.encode_video import create_text_image
 from top_ten_bot.main.encode_video import get_default_clip
 from top_ten_bot.main.encode_video import get_image_clip
 from top_ten_bot.main.encode_video import get_text_clip
 from top_ten_bot.main.encode_video import write_video
 from top_ten_bot.main.image_search import get_images
 from top_ten_bot.main.music_search import download_music
-from os.path import abspath, exists, join
+from os.path import abspath, basename, exists, join
+from PIL import Image
+
+def test_create_text_image():
+    """
+    Tests the create_text_image function.
+    """
+    # Test getting a text caption image
+    img_path = create_text_image("Some random text")
+    assert exists(img_path)
+    assert basename(img_path) == "text.png"
+    image = Image.open(img_path)
+    assert image.size[0] == 240
+    assert image.size[1] == 180
+    # Test getting larger text caption
+    img_path = create_text_image("More text!", 480)
+    assert exists(img_path)
+    assert basename(img_path) == "text.png"
+    image = Image.open(img_path)
+    assert image.size[0] == 480
+    assert image.size[1] == 360
+    # Test getting a text caption image with invalid parameters
+    img_path = create_text_image(None)
+    assert exists(img_path)
+    assert basename(img_path) == "missing.png"
+    image = Image.open(img_path)
+    assert image.size[0] == 240
+    assert image.size[1] == 180
 
 def test_get_default_clip():
     """
@@ -139,10 +167,10 @@ def all_tests():
     """
     Runs all tests for the encode_video.py module.
     """
+    test_create_text_image()
     test_get_default_clip()
     test_get_text_clip()
     test_get_image_clip()
     test_write_video()
     test_create_list_video()
     test_add_audio_to_video()
-    
